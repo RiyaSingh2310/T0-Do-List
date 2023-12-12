@@ -1,76 +1,146 @@
-/*=============== CLOCK ===============*/
-const hour = document.getElementById('clock-hour'),
-      minutes = document.getElementById('clock-minutes')
+<!DOCTYPE html>
+<html lang="en">
 
-const clock = () =>{
-   // We get the Date object
-   let date = new Date()
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous" />
+</head>
 
-   // We get the hours and minutes 
-   // (current time) / 12(hours) * 360(deg circle)
-   // (Current minute) / 60(minutes) * 360(deg circle)
-   let hh = date.getHours() / 12 * 360,
-       mm = date.getMinutes() / 60 * 360
+<body>
+  <div class="container-fluid bg-light" style="height: 100vh; width: 100%">
+    <div class="row">
+      <div class="col d-flex justify-content-center">
+        <h1 class="text-primary">TO-DO List</h1>
+      </div>
+    </div>
+    <div class="row m-5">
+      <div class="col-md-5">
+        <input type="text" id="msg" placeholder="Enter yr msg" value="" . />
+        <button id="submit" class="btn btn-primary">ADD</button>
+      </div>
+    </div>
+    <hr />
+    <div class="row">
+      <div class="col d-flex justify-content-between">
+        <div>
+          <h5>Total count:<b><span id="count">0</span> </b></h5>
+        </div>
+        <div>
+          <buttton class="btn btn-danger" id="clear">CLEARALL</buttton>
+        </div>
+      </div>
+    </div>
+    <hr />
+    <div class="row d-flex m-3" id="body"></div>
+  </div>
 
-   // We add a rotation to the elements
-   hour.style.transform = `rotateZ(${hh + mm / 12}deg)`
-   minutes.style.transform = `rotateZ(${mm}deg)`
-}
-setInterval(clock, 1000) // (Updates every 1s) 1000 = 1s 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+    crossorigin="anonymous"></script>
+  <script>
+    let submit = document.getElementById("submit");
+    let clear = document.getElementById('clear');
+    let msg = document.getElementById("msg");
+    //globalArr
+    let gArr = [];
+    //edit varible
+    let isEdit = ''
+    cardPrint();
+    submit.addEventListener("click", todoHandler);
+    //this is for the todo
+    function todoHandler() {
+      if (!msg.value) {
+        alert("you must have to give text");
+      } else {
+        if (isEdit) {
+          let newArr=  gArr.map((item)=>{
+              if(item.id==isEdit.id)
+              {
+                 let obj={id:item.id,text:msg.value}
+                 return obj
+              }
+              else{
+                return item
+              }
+            })
+           gArr=newArr
+           isEdit=''
+           submit.innerText="ADD"
+        }
+        else {
+          let obj = {
+            id: Math.trunc(Math.random() * 10000),
+            text: msg.value,
+          };
+          gArr.unshift(obj);
+        }
 
-/*=============== TIME AND DATE TEXT ===============*/
-const dateDayWeek = document.getElementById('date-day-week'),
-      dateMonth = document.getElementById('date-month'),
-      dateDay = document.getElementById('date-day'),
-      dateYear = document.getElementById('date-year'),
-      textHour = document.getElementById('text-hour'),
-      textMinutes = document.getElementById('text-minutes'),
-      textAmPm = document.getElementById('text-ampm')
+        cardPrint();
+      }
+      msg.value = "";
+    }
+    //this is for delete
+    function deleteHandler(id) {
+      gArr = gArr.filter((item) => {
+        return item.id != id
+      })
+      cardPrint()
+    }
+    //this is for the edit
+    function editHandler(id) {
+      let findData = gArr.find((item) => {
+        return item.id == id
+      })
+      isEdit = findData;
+      msg.value = findData.text
+      submit.innerText = "UPDATE"
 
-const clockText = () =>{
-   // We get the Date object
-   let date = new Date()
 
-   // We get the time and date
-   let dayWeek = date.getDay(),
-       month = date.getMonth(),
-       day = date.getDate(),
-       year = date.getFullYear(),
-       hh = date.getHours(),
-       mm = date.getMinutes(),
-       ampm
+    }
 
-   // We get the days of the week and the months. (First day of the week Sunday)
-   let daysWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-   let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    //this function is for printing the card
+    function cardPrint() {
+      let template = "";
+      let body = document.getElementById("body");
+      let count = document.getElementById('count')
+      let todoLength = gArr.length
+      if (gArr.length == 0) {
+        template += '<h4 style="text-align:center">No Data</h4>';
+      } else {
 
-   // We add the corresponding dates
-   dateDayWeek.innerHTML = `${daysWeek[dayWeek]}`
-   dateMonth.innerHTML = `${months[month]}`
-   dateDay.innerHTML = `${day}, `
-   dateYear.innerHTML = year
 
-   // If hours is greater than 12 (afternoon), we subtract -12, so that it starts at 1 (afternoon)
-   if(hh >= 12){
-      hh = hh - 12
-      ampm = 'PM'
-   } else{
-      ampm = 'AM'
-   }
+        gArr.forEach((item) => {
+          console.log("testing", item);
+          template += `    <div class="col-md-3 m-3" >
+                 <div class="card bg-dark text-white">
+            <div class="card-body">
+              <p>${item.text}</p>
+            </div>
+            <div class="card-footer">
+              <div class="d-flex justify-content-between">
+                <button class="btn btn-primary" onclick="editHandler(${item.id})">edit</button>
+                <button class="btn btn-danger" onclick="deleteHandler(${item.id})">delete</button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+        });
 
-   textAmPm.innerHTML = ampm
+      }
 
-   // When it is 0 hours (early morning), we tell it to change to 12 hours
-   if(hh == 0){hh = 12}
+      body.innerHTML = template;
+      count.innerText = todoLength
+    }
+    //this functionality for clear all the todo
+    clear.addEventListener('click', () => {
+      gArr = []
+      cardPrint()
+    })
 
-   // If hours is less than 10, add a 0 (01,02,03...09)
-   if(hh < 10){hh = `0${hh}`}
+  </script>
+</body>
 
-   textHour.innerHTML = `${hh}:`
-
-   // If minutes is less than 10, add a 0 (01,02,03...09)
-   if(mm < 10){mm = `0${mm}`}
-
-   textMinutes.innerHTML = mm
-}
-setInterval(clockText, 1000) // (Updates every 1s) 1000 = 1s
+</html>
